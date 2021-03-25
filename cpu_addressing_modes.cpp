@@ -106,3 +106,21 @@ CPU::getRelative()
   int8_t offset = (int8_t)(addr);
   PC += offset;
 }
+
+void
+CPU::getIndirect()
+{
+  uint8_t addr = read(PC);
+  uint16_t jumpAddr = {};
+  // JMP BUG, if you do for example JMP(30FF)
+  // it will take the High B from 0x3000 and the low B from 0x30FFF
+  if (addr & 0x00FF == 0x00FF) {
+    uint8_t HB = read(addr & 0xFF00);
+    uint8_t LB = read(addr);
+    jumpAddr = ((uint16_t)HB << 8) + LB;
+  } else {
+    jumpAddr = addr;
+  }
+  CPU::address = jumpAddr;
+  PC++;
+}

@@ -29,6 +29,7 @@ public:
   bool I = {}; // interrupt
   bool D = {}; // decimal
   bool B = {}; // break
+  // BREAK 2 not included
   bool O = {}; // overflow
   bool N = {}; // negative
 
@@ -56,6 +57,7 @@ public:
   bool getAbsoluteXindx();
   bool getAbsoluteYindx();
   void getRelative();
+  void getIndirect();
 
   // MISC
   void add(uint8_t val);

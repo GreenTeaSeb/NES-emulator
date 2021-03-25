@@ -32,12 +32,15 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x05:
+          CPU::C = 2;
           CPU::LDY();
           break;
         case 0x06:
+          CPU::C = 2;
           CPU::CPY();
           break;
         case 0x07:
+          CPU::C = 2;
           CPU::CPX();
           break;
       }
@@ -49,6 +52,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x01:
+          CPU::C = 3;
           CPU::BIT();
           break;
         case 0x02:
@@ -58,15 +62,19 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x04:
+          CPU::C = 3;
           CPU::STY();
           break;
         case 0x05:
+          CPU::C = 3;
           CPU::LDY();
           break;
         case 0x06:
+          CPU::C = 3;
           CPU::CPY();
           break;
         case 0x07:
+          CPU::C = 3;
           CPU::CPX();
           break;
       }
@@ -75,27 +83,35 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       // implied
       switch (func) {
         case 0x00:
+          CPU::CC = 3;
           CPU::PHP();
           break;
         case 0x01:
+          CPU::CC = 4;
           CPU::PLP();
           break;
         case 0x02:
+          CPU::CC = 3;
           CPU::PHA();
           break;
         case 0x03:
+          CPU::CC = 4;
           CPU::PLA();
           break;
         case 0x04:
+          CPU::CC = 2;
           CPU::DEY();
           break;
         case 0x05:
+          CPU::CC = 2;
           CPU::TAY();
           break;
         case 0x06:
+          CPU::CC = 2;
           CPU::INY();
           break;
         case 0x07:
+          CPU::CC = 2;
           CPU::INX();
           break;
       }
@@ -103,30 +119,40 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
     case 0x03: // 4th column
       if (func != 0x03)
         getAbsolute();
+      else
+        getIndirect();
       // ONLY JUMP HAS INDIRECT
       switch (func) {
         case 0x00:
           CPU::NOP();
           break;
         case 0x01:
+          CPU::C = 4;
           CPU::BIT();
           break;
         case 0x02:
+          CPU::C = 3;
           CPU::JMP();
           break;
         case 0x03:
+          CPU::C = 5; // INDIRECT
+
           CPU::JMP();
           break;
         case 0x04:
+          CPU::C = 4;
           CPU::STY();
           break;
         case 0x05:
+          CPU::C = 4;
           CPU::LDY();
           break;
         case 0x06:
+          CPU::C = 4;
           CPU::CPY();
           break;
         case 0x07:
+          CPU::C = 4;
           CPU::CPX();
           break;
       }
@@ -161,25 +187,23 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x05: // 6th column
-      getZeroPageXindx();
+      bool pageCross = getZeroPageXindx();
       switch (func) {
         case 0x00:
         case 0x01:
         case 0x02:
         case 0x03:
+        case 0x06:
+        case 0x07:
           CPU::NOP();
           break;
         case 0x04:
+          CPU::C = 4;
           CPU::STY();
           break;
         case 0x05:
+          CPU::C = 4;
           CPU::LDY();
-          break;
-        case 0x06:
-          CPU::CPY();
-          break;
-        case 0x07:
-          CPU::CPX();
           break;
       }
       break;
@@ -213,7 +237,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x07: // 8th column
-      getAbsoluteXindx();
+      bool pageCross = getAbsoluteXindx();
       switch (func) {
         case 0x00:
         case 0x01:
@@ -225,6 +249,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::SHY();
           break;
         case 0x05:
+          CPU::C = (pageCross) ? 5 : 4;
           CPU::LDY();
           break;
         case 0x06:
@@ -252,13 +277,13 @@ void
 CPU::RTI()
 {
   uint8_t newFlags = popStack();
-  C = 0b00000001;
-  Z = 0b00000010;
-  I = 0b00000100;
-  D = 0b00001000;
-  B = 0b00010000;
-  O = 0b01000000; // SKIPPED BREAK2
-  N = 0b10000001;
+  C = newFlags & 0b00000001;
+  Z = newFlags & 0b00000010;
+  I = newFlags & 0b00000100;
+  D = newFlags & 0b00001000;
+  B = newFlags & 0b00010000;
+  O = newFlags & 0b01000000; // SKIPPED BREAK2
+  N = newFlags & 0b10000001;
   CPU::PC = popStack();
 }
 
@@ -287,6 +312,113 @@ CPU::CPY()
 {
   uint8_t val = read(CPU::address);
   C = Y >= val;
-  Z = Y = val;
+  Z = Y == val;
   N = (A >> 7);
+}
+
+void
+CPU::CPX()
+{
+  uint8_t val = read(CPU::address);
+  C = x >= val;
+  Z = x == val;
+  N = (A >> 7);
+}
+
+void
+CPU::BIT()
+{
+  uint8_t val = read(CPU::memory);
+  Z = A & val == 0;
+  V = (val >> 6) & 0b1;
+  N = val >> 7;
+}
+
+void
+CPU::STY()
+{
+  CPU::memory[CPU::address] = Y;
+}
+void
+CPU::LDY()
+{
+  uint8_t val = read(CPU::memory);
+}
+
+void
+CPU::JMP()
+{
+  PC = read(CPU::memory);
+}
+void
+CPU::PHP()
+{
+  uint8_t statusFlags =
+    C + (Z << 1) + (I << 2) + (D << 3) + (B << 4) + (O << 6) + (I << 7);
+  pushStack(statusFlags);
+}
+void
+CPU::PLP()
+{
+  uint8_t newFlags = popStack();
+  C = newFlags & 0b00000001;
+  Z = newFlags & 0b00000010;
+  I = newFlags & 0b00000100;
+  D = newFlags & 0b00001000;
+  B = newFlags & 0b00010000;
+  O = newFlags & 0b01000000; // SKIPPED BREAK2
+  N = newFlags & 0b10000001;
+}
+
+void
+CPU::PHA()
+{
+  pushStack(A);
+}
+
+void
+CPU::PLA()
+{
+  uint8_t val = popStack();
+  A = val;
+  Z = A == 0;
+  N = A >> 7;
+}
+
+void
+CPU::DEY()
+{
+  Y -= 1;
+  Y %= 256;
+
+  Z = Y == 0;
+  N = Y >> 7;
+}
+
+void
+CPU::TAY()
+{
+  Y = A;
+  Z = Y == 0;
+  N = Y >> 7;
+}
+
+void
+CPU::INY()
+{
+  Y += 1;
+  Y %= 256;
+
+  Z = Y == 0;
+  N = Y >> 7;
+}
+
+void
+CPU::INX()
+{
+  X += 1;
+  X %= 256;
+
+  Z = X == 0;
+  N = X >> 7;
 }
