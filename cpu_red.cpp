@@ -25,22 +25,22 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::RTI();
           break;
         case 0x03:
-          CPU::C = 6;
+          CPU::CC = 6;
           CPU::RTS();
           break;
         case 0x04:
           CPU::NOP();
           break;
         case 0x05:
-          CPU::C = 2;
+          CPU::CC = 2;
           CPU::LDY();
           break;
         case 0x06:
-          CPU::C = 2;
+          CPU::CC = 2;
           CPU::CPY();
           break;
         case 0x07:
-          CPU::C = 2;
+          CPU::CC = 2;
           CPU::CPX();
           break;
       }
@@ -52,7 +52,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x01:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::BIT();
           break;
         case 0x02:
@@ -62,19 +62,19 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x04:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::STY();
           break;
         case 0x05:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::LDY();
           break;
         case 0x06:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::CPY();
           break;
         case 0x07:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::CPX();
           break;
       }
@@ -127,38 +127,39 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x01:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::BIT();
           break;
         case 0x02:
-          CPU::C = 3;
+          CPU::CC = 3;
           CPU::JMP();
           break;
         case 0x03:
-          CPU::C = 5; // INDIRECT
+          CPU::CC = 5; // INDIRECT
 
           CPU::JMP();
           break;
         case 0x04:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::STY();
           break;
         case 0x05:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::LDY();
           break;
         case 0x06:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::CPY();
           break;
         case 0x07:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::CPX();
           break;
       }
       break;
     case 0x04: // 5th column
       getRelative();
+      CPU::CC = 2;
       switch (func) {
         case 0x00:
           CPU::BPL();
@@ -187,7 +188,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x05: // 6th column
-      bool pageCross = getZeroPageXindx();
+      getZeroPageXindx();
       switch (func) {
         case 0x00:
         case 0x01:
@@ -198,17 +199,18 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x04:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::STY();
           break;
         case 0x05:
-          CPU::C = 4;
+          CPU::CC = 4;
           CPU::LDY();
           break;
       }
       break;
     case 0x06: // 7th column
       // implied
+      CPU::CC = 2;
       switch (func) {
         case 0x00:
           CPU::CLC();
@@ -246,6 +248,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::NOP();
           break;
         case 0x04:
+          CPU::CC = 5;
           CPU::SHY();
           break;
         case 0x05:
@@ -283,7 +286,7 @@ CPU::RTI()
   D = newFlags & 0b00001000;
   B = newFlags & 0b00010000;
   O = newFlags & 0b01000000; // SKIPPED BREAK2
-  N = newFlags & 0b10000001;
+  N = newFlags & 0b10000000;
   CPU::PC = popStack();
 }
 
@@ -320,17 +323,17 @@ void
 CPU::CPX()
 {
   uint8_t val = read(CPU::address);
-  C = x >= val;
-  Z = x == val;
+  C = X >= val;
+  Z = X == val;
   N = (A >> 7);
 }
 
 void
 CPU::BIT()
 {
-  uint8_t val = read(CPU::memory);
-  Z = A & val == 0;
-  V = (val >> 6) & 0b1;
+  uint8_t val = read(CPU::address);
+  Z = (A & val) == 0;
+  O = (val >> 6) & 0b1;
   N = val >> 7;
 }
 
@@ -339,16 +342,11 @@ CPU::STY()
 {
   CPU::memory[CPU::address] = Y;
 }
-void
-CPU::LDY()
-{
-  uint8_t val = read(CPU::memory);
-}
 
 void
 CPU::JMP()
 {
-  PC = read(CPU::memory);
+  PC = read(CPU::address);
 }
 void
 CPU::PHP()
@@ -367,7 +365,7 @@ CPU::PLP()
   D = newFlags & 0b00001000;
   B = newFlags & 0b00010000;
   O = newFlags & 0b01000000; // SKIPPED BREAK2
-  N = newFlags & 0b10000001;
+  N = newFlags & 0b10000000;
 }
 
 void
@@ -421,4 +419,109 @@ CPU::INX()
 
   Z = X == 0;
   N = X >> 7;
+}
+
+void
+CPU::BPL()
+{
+  branch(!N);
+}
+
+void
+CPU::BMI()
+{
+  branch(N);
+}
+
+void
+CPU::BVC()
+{
+  branch(!O);
+}
+
+void
+CPU::BVS()
+{
+  branch(O);
+}
+
+void
+CPU::BCC()
+{
+  branch(!C);
+}
+
+void
+CPU::BCS()
+{
+  branch(C);
+}
+
+void
+CPU::BNE()
+{
+  branch(!Z);
+}
+
+void
+CPU::BEQ()
+{
+  branch(Z);
+}
+
+void
+CPU::CLC()
+{
+  C = 0;
+}
+
+void
+CPU::SEC()
+{
+  C = 1;
+}
+
+void
+CPU::CLI()
+{
+  I = 0;
+}
+
+void
+CPU::SEI()
+{
+  I = 1;
+}
+
+void
+CPU::TYA()
+{
+  A = Y;
+  Z = A == 0;
+  N = A >> 7;
+}
+
+void
+CPU::CLV()
+{
+  O = 0;
+}
+
+void
+CPU::CLD()
+{
+  D = 0;
+}
+
+void
+CPU::SED()
+{
+  D = 1;
+}
+
+void
+CPU::SHY()
+{
+  uint8_t data = Y & ((CPU::address >> 8) + 1);
+  write(CPU::address, data);
 }

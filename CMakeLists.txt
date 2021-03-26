@@ -13,7 +13,7 @@ add_executable(NESEmulator
     cpu_green.cpp
     cpu_red.cpp
     cpu_blue.cpp
-    cpu_gray.cpp
+   # cpu_gray.cpp
     )
 
 

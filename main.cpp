@@ -1,11 +1,16 @@
 #include "cpu.h"
+#include <fstream>
 #include <iostream>
 using namespace std;
 
 int main()
 {
+  // TO DO ALL
   CPU cpu;
-  cpu.execute(2);
-  cout << "Hello World!" << endl;
+  // std::ifstream input("official_only.nes", std::ios::binary);
+
+  cpu.write(0x0000, 0xF8);
+  cpu.execute();
+  printf("%d\n", cpu.D);
   return 0;
 }

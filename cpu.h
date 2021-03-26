@@ -36,7 +36,7 @@ public:
   void write(uint16_t addrss, uint8_t data);
   uint8_t read(uint16_t addrss);
 
-  void execute(uint32_t cycles);
+  void execute();
 
   void executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func);
   void executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func);
@@ -64,6 +64,7 @@ public:
   bool checkPageCross(uint8_t B1, uint8_t B2);
   void pushStack(uint16_t val);
   uint8_t popStack();
+  void branch(bool condition);
 
   // Instructions
   void ADC();

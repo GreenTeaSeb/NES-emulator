@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <cstdint>
+#include <stdio.h>
 CPU::CPU()
 {
 
@@ -8,6 +9,7 @@ void
 CPU::write(uint16_t addrss, uint8_t data) // Write to Ram
 {
   CPU::memory[addrss] = data;
+  printf("%u\n", read(0x6000));
 }
 uint8_t
 CPU::read(uint16_t addrss) // read RAM
@@ -29,12 +31,24 @@ CPU::popStack()
   SP %= 2048;
   return read(STACKSTART + CPU::SP);
 }
+void
+CPU::branch(bool condition)
+{
+  int8_t jump = read(PC);
+  PC++;
+  if (condition) {
+    if (PC & 0xFF + jump > 0xFF)
+      CC++;
+    PC += jump;
+    CC++;
+  }
+}
 
 void
 CPU::initialise()
 {}
 void
-CPU::execute(uint32_t cycles)
+CPU::execute()
 {
 
   opcode = read(PC);
@@ -51,10 +65,10 @@ CPU::execute(uint32_t cycles)
       executeGREEN(opcode, addrmode, func);
       break;
     case 0b10: // blue  Read-modify-write
-      executeBLUE(opcode, addrmode, func);
+      // executeBLUE(opcode, addrmode, func);
       break;
     case 0b11: // gray unofficial
-      executeGRAY(opcode, addrmode, func);
+      // executeGRAY(opcode, addrmode, func);
       break;
   }
 }
