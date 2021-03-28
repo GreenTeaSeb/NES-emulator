@@ -67,20 +67,17 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
     case 0x2:
       // implied
       switch (func) { // row
+        CPU::CC = 2;
         case 0x0:
-          CPU::CC = 2;
           CPU::ASL();
           break;
         case 0x1:
-          CPU::CC = 2;
           CPU::ROL();
           break;
         case 0x2:
-          CPU::CC = 2;
           CPU::LSR();
           break;
         case 0x3:
-          CPU::CC = 2;
           CPU::ROR();
           break;
         case 0x4:
@@ -99,6 +96,10 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
       break;
     case 0x3:
       getAbsolute();
+      if (func == 0x04 || func == 0x05)
+        CPU::CC = 4;
+      else
+        CPU::CC = 6;
       switch (func) { // row
         case 0x0:
           CPU::ASL();
@@ -142,12 +143,16 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x5:
-      if (func == 0x04 || func == 0x05)
+      if (func == 0x04 || func == 0x05) {
         getZeroPageYindx();
-      else
+        CPU::CC = 4;
+      } else {
         getZeroPageXindx();
+        CPU::CC = 6;
+      }
       switch (func) { // row
         case 0x0:
+          CPU::CC = 6;
           CPU::ASL();
           break;
         case 0x1:
@@ -175,6 +180,7 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
       break;
     case 0x6:
       // implied
+      CPU::CC = 2;
       switch (func) { // row
         case 0x0:
         case 0x1:
@@ -194,10 +200,15 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x7:
-      if (func == 0x04 || func == 0x05)
-        getAbsoluteYindx();
-      else
+      if (func == 0x04 || func == 0x05) {
+        bool pageCrossed = getAbsoluteYindx();
+        CPU::CC = 4;
+        if (pageCrossed)
+          CPU::CC += 1;
+      } else {
         getAbsoluteXindx();
+        CPU::CC = 7;
+      }
       switch (func) { // row
         case 0x0:
           CPU::ASL();

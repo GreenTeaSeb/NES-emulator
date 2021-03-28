@@ -50,25 +50,26 @@ CPU::initialise()
 void
 CPU::execute()
 {
-
-  opcode = read(PC);
-  uint8_t color = opcode & 0b11;            // region
-  uint8_t addrmode = (opcode >> 2) & 0b111; // column 0-31
-  uint8_t func = (opcode >> 5) & 0b111;     // row 0-7
-  CC = 0;
-  PC++;
-  switch (color) {
-    case 0b00: // red control instructions
-      executeRED(opcode, addrmode, func);
-      break;
-    case 0b01: // green ALU
-      executeGREEN(opcode, addrmode, func);
-      break;
-    case 0b10: // blue  Read-modify-write
-      // executeBLUE(opcode, addrmode, func);
-      break;
-    case 0b11: // gray unofficial
-      // executeGRAY(opcode, addrmode, func);
-      break;
+  while (PC < 0xFFFF) {
+    opcode = read(PC);
+    uint8_t color = opcode & 0b11;            // region
+    uint8_t addrmode = (opcode >> 2) & 0b111; // column 0-31
+    uint8_t func = (opcode >> 5) & 0b111;     // row 0-7
+    CC = 0;
+    PC++;
+    switch (color) {
+      case 0b00: // red control instructions
+        executeRED(opcode, addrmode, func);
+        break;
+      case 0b01: // green ALU
+        executeGREEN(opcode, addrmode, func);
+        break;
+      case 0b10: // blue  Read-modify-write
+        executeBLUE(opcode, addrmode, func);
+        break;
+      case 0b11: // gray unofficial
+        // executeGRAY(opcode, addrmode, func);
+        break;
+    }
   }
 }
