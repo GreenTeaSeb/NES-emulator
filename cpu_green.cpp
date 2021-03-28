@@ -56,6 +56,8 @@ CPU::executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func)
     case 0x04: // 5th row
       if (addrmode != 0x2) {
         CPU::STA();
+      } else {
+        CPU::NOP();
       }
       break;
     case 0x05: // 6th row

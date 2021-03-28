@@ -6,8 +6,9 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
 {
   switch (addrmode) {
     case 0x00: // 1st column
-
-      if (func >= 0x04) {
+      if (func == 0x01) {
+        getAbsolute();
+      } else if (func >= 0x04) {
         getImmediate();
       }
 
