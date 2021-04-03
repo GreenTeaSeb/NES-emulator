@@ -1,6 +1,7 @@
 
 #include "cpu.h"
 #include <cstdint>
+#include <stdio.h>
 
 void
 CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
@@ -249,14 +250,13 @@ void
 CPU::LDX()
 {
   X = read(CPU::address);
-  Z = X == 0;
-  N = X >> 7;
+  setZN(X);
 }
 
 void
 CPU::ASL()
 {
-  uint8_t AccumOpcode = 0x2A;
+  uint8_t AccumOpcode = 0x0A;
 
   // getting
   uint8_t data;
@@ -268,9 +268,7 @@ CPU::ASL()
   // updating
   C = data >> 7;
   data <<= 1;
-  Z = data == 0;
-  N = data >> 7;
-
+  setZN(data);
   // setting
   if (CPU::opcode == AccumOpcode)
     A = data;
@@ -346,11 +344,9 @@ CPU::LSR()
     data = read(CPU::address);
 
   // updating
-  C = data >> 7;
+  C = data & 1;
   data >>= 1;
-  Z = data == 0;
-  N = data >> 7;
-
+  setZN(data);
   // setting
   if (CPU::opcode == AccumOpcode)
     A = data;
@@ -361,6 +357,7 @@ CPU::LSR()
 void
 CPU::STX()
 {
+
   write(CPU::address, X);
 }
 
@@ -402,16 +399,14 @@ void
 CPU::TXA()
 {
   A = X;
-  Z = A == 0;
-  N = A >> 7;
+  setZN(A);
 }
 
 void
 CPU::DEX()
 {
-  X -= 1;
-  Z = X == 0;
-  N = X >> 7;
+  --X;
+  setZN(X);
 }
 
 void
@@ -424,6 +419,5 @@ void
 CPU::TSX()
 {
   X = SP;
-  Z = X == 0;
-  N = X >> 7;
+  setZN(X);
 }

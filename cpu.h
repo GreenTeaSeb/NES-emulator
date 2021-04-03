@@ -20,8 +20,8 @@ public:
   uint8_t opcode = {}; // opcode
   uint16_t address = {};
   uint8_t memory[64 * 1024] = {};
-  const uint8_t STACKSTART = 0x0100;
-  const uint8_t STACKEND = 0x01FF;
+  const uint16_t STACKSTART = 0x0100;
+  const uint16_t STACKEND = 0x01FF;
 
   // status flags
   bool C = {}; // carry
@@ -29,7 +29,7 @@ public:
   bool I = {}; // interrupt
   bool D = {}; // decimal
   bool B = {}; // break
-  // BREAK 2 not included
+  bool B2 = {}; // break2
   bool O = {}; // overflow
   bool N = {}; // negative
 
@@ -62,9 +62,12 @@ public:
   // MISC
   void add(uint8_t val);
   bool checkPageCross(uint8_t B1, uint8_t B2);
-  void pushStack(uint16_t val);
+  void pushStack(uint8_t data);
   uint8_t popStack();
   void branch(bool condition);
+  void setZN(uint8_t result);
+
+  void setPStatus();
 
   // Instructions
   void ADC();

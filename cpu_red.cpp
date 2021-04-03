@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <cstdint>
+#include <stdio.h>
 
 void
 CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
@@ -11,7 +12,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       } else if (func >= 0x04) {
         getImmediate();
       }
-
+      // 0x0,0x2,0x3 are implied
       switch (func) {
         case 0x00:
           CPU::BRK();
@@ -253,7 +254,7 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
           CPU::SHY();
           break;
         case 0x05:
-          CPU::C = (pageCross) ? 5 : 4;
+          CPU::CC = (pageCross) ? 5 : 4;
           CPU::LDY();
           break;
         case 0x06:
@@ -269,13 +270,17 @@ void
 CPU::BRK()
 {
   // TO DO
+  PC = read(0xFFFF);
   B = 1;
 }
 void
 CPU::JSR()
 {
-  CPU::pushStack(CPU::PC - 1);
-  CPU::PC = read(CPU::PC);
+  PC--;
+  CPU::pushStack((PC >> 8) & 0xff);
+  CPU::pushStack(PC & 0xff);
+
+  CPU::PC = CPU::address;
 }
 void
 CPU::RTI()
@@ -288,13 +293,15 @@ CPU::RTI()
   B = newFlags & 0b00010000;
   O = newFlags & 0b01000000; // SKIPPED BREAK2
   N = newFlags & 0b10000000;
-  CPU::PC = popStack();
+  CPU::PC = popStack() | popStack() << 8;
 }
 
 void
 CPU::RTS()
 {
-  CPU::PC = popStack() + 1;
+  uint16_t lo = popStack();
+  uint16_t hi = popStack();
+  CPU::PC = ((hi << 8) | lo) + 1;
 }
 
 void
@@ -307,26 +314,26 @@ void
 CPU::LDY()
 {
   Y = read(CPU::address);
-  Z = Y == 0;
-  N = (A >> 7);
+  setZN(Y);
+  printf("\t Y = %x \n\t N = %x \n", Y, Y >> 7);
 }
 
 void
 CPU::CPY()
 {
   uint8_t val = read(CPU::address);
+  uint16_t diff = Y - val;
   C = Y >= val;
-  Z = Y == val;
-  N = (A >> 7);
+  setZN(diff);
 }
 
 void
 CPU::CPX()
 {
   uint8_t val = read(CPU::address);
+  uint16_t diff = X - val;
   C = X >= val;
-  Z = X == val;
-  N = (A >> 7);
+  setZN(diff);
 }
 
 void
@@ -341,19 +348,22 @@ CPU::BIT()
 void
 CPU::STY()
 {
-  CPU::memory[CPU::address] = Y;
+  write(CPU::address, Y);
 }
 
 void
 CPU::JMP()
 {
-  PC = read(CPU::address);
+  printf("\t jump to addr %x \n", CPU::address);
+  PC = CPU::address;
+  printf("\tjumped -> %x \n", PC);
 }
 void
 CPU::PHP()
 {
-  uint8_t statusFlags =
-    C + (Z << 1) + (I << 2) + (D << 3) + (B << 4) + (O << 6) + (I << 7);
+  uint8_t statusFlags = C + (Z << 1) + (I << 2) + (D << 3) + (1 << 4) +
+                        (O << 6) + (N << 7) +
+                        (1 << 5); // BREAK and BREAK2 IS ALWAYS 1
   pushStack(statusFlags);
 }
 void
@@ -364,8 +374,8 @@ CPU::PLP()
   Z = newFlags & 0b00000010;
   I = newFlags & 0b00000100;
   D = newFlags & 0b00001000;
-  B = newFlags & 0b00010000;
-  O = newFlags & 0b01000000; // SKIPPED BREAK2
+  // B = newFlags & 0b00010000;
+  O = newFlags & 0b01000000; // SKIPPED BREAK2 and BREAK1
   N = newFlags & 0b10000000;
 }
 
@@ -378,48 +388,38 @@ CPU::PHA()
 void
 CPU::PLA()
 {
-  uint8_t val = popStack();
-  A = val;
-  Z = A == 0;
-  N = A >> 7;
+  A = popStack();
+  printf("\t A = %-2x Z = %x \n", A, Z);
+  setZN(A);
 }
 
 void
 CPU::DEY()
 {
   Y -= 1;
-  Y %= 256;
-
-  Z = Y == 0;
-  N = Y >> 7;
+  setZN(Y);
 }
 
 void
 CPU::TAY()
 {
   Y = A;
-  Z = Y == 0;
-  N = Y >> 7;
+  setZN(Y);
 }
 
 void
 CPU::INY()
 {
   Y += 1;
-  Y %= 256;
 
-  Z = Y == 0;
-  N = Y >> 7;
+  setZN(Y);
 }
 
 void
 CPU::INX()
 {
   X += 1;
-  X %= 256;
-
-  Z = X == 0;
-  N = X >> 7;
+  setZN(X);
 }
 
 void
@@ -455,6 +455,7 @@ CPU::BCC()
 void
 CPU::BCS()
 {
+
   branch(C);
 }
 
@@ -474,12 +475,14 @@ void
 CPU::CLC()
 {
   C = 0;
+  printf("\t C -> %x\n", C);
 }
 
 void
 CPU::SEC()
 {
   C = 1;
+  printf("\t C -> %x\n", C);
 }
 
 void
@@ -498,8 +501,7 @@ void
 CPU::TYA()
 {
   A = Y;
-  Z = A == 0;
-  N = A >> 7;
+  setZN(A);
 }
 
 void

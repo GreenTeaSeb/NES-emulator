@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <cstdint>
+#include <stdio.h>
 
 void
 CPU::executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func)
@@ -11,7 +12,7 @@ CPU::executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func)
       getIndexed_Indirect();
       break;
     case 0x01:
-      CPU::C = 3;
+      CPU::CC = 3;
       getZeropage();
       break;
     case 0x02: // #i
@@ -24,16 +25,19 @@ CPU::executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func)
       break;
     case 0x04:
       CPU::CC = 5;
+
       if (getIndirect_Indexed() || func == 0x4)
         CC += 1;
       break;
     case 0x05:
       CPU::CC = 3;
       getZeroPageXindx();
+      break;
     case 0x06:
       CPU::CC = 4;
       if (getAbsoluteYindx() || func == 0x4)
         CC += 1;
+      break;
     case 0x07:
       CPU::CC = 4;
       if (getAbsoluteXindx() || func == 0x4)
@@ -61,6 +65,7 @@ CPU::executeGREEN(uint8_t opcode, uint8_t addrmode, uint8_t func)
       }
       break;
     case 0x05: // 6th row
+
       CPU::LDA();
       break;
     case 0x06: // 7th row
@@ -76,22 +81,19 @@ void
 CPU::ORA()
 {
   A |= read(CPU::address);
-  Z = A == 0;
-  N = (A >> 7);
+  setZN(A);
 }
 void
 CPU::AND()
 {
   A &= read(CPU::address);
-  Z = A == 0;
-  N = (A >> 7);
+  setZN(A);
 }
 void
 CPU::EOR()
 {
   A ^= read(CPU::address);
-  Z = A == 0;
-  N = (A >> 7);
+  setZN(A);
 }
 
 void
@@ -103,41 +105,43 @@ CPU::ADC()
 
   A = sum;
   C = sum >> 8;
-  Z = A == 0;
-  N = (A >> 7);
+  setZN(sum);
 }
 void
 CPU::STA()
 {
+  printf("\t STA: %x -> $%x\n", A, address);
   write(address, A);
 }
 
 void
 CPU::LDA()
 {
-  A = memory[address];
-  Z = A == 0;
-  N = (A >> 7);
+  printf("\t $%x = %x \n ", address, read(address));
+
+  A = read(CPU::address);
+  printf("\t LDA A = %x \n", read(CPU::address));
+  setZN(A);
 }
 
 void
 CPU::CMP()
 {
-  uint8_t M = read(CPU::address);
-  C = A >= M;
-  Z = A = M;
-  N = (A >> 7);
+  uint16_t diff = A - read(CPU::address);
+  printf("\t %x - %x = %x \n", A, read(CPU::address), diff);
+  C = !(diff & 0x100);
+  setZN(diff);
 }
 
 void
 CPU::SBC()
 {
-  uint8_t value = read(CPU::address);
-  uint16_t sum = A - value - !C;
-  O = (~(A ^ value) & (A ^ sum) & 0x80);
+  uint16_t value = read(CPU::address);
+  uint16_t diff = A - value - !C;
 
-  A = sum;
-  C = sum >> 8;
-  Z = A == 0;
-  N = (A >> 7);
+  C = !(diff >> 8); // checks bit 8
+  O = ((A ^ diff) & (~value ^ diff) & 0x80);
+  A = diff;
+
+  setZN(diff);
 }
