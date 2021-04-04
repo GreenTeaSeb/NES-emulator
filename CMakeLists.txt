@@ -14,6 +14,8 @@ add_executable(NESEmulator
     cpu_red.cpp
     cpu_blue.cpp
     cpu_gray.cpp
+    bus.cpp
+    rom.cpp
     )
 
 

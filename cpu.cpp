@@ -1,21 +1,24 @@
 #include "cpu.h"
+#include "bus.h"
 #include <Windows.h>
 #include <cstdint>
 #include <stdexcept>
 #include <stdio.h>
-CPU::CPU()
-{
 
-}
+CPU::CPU() {}
 void
 CPU::write(uint16_t addrss, uint8_t data) // Write to Ram
 {
-  CPU::memory[addrss] = data;
+  BUS.write(addrss, data);
+  // CPU::memory[addrss] = data;
 }
 uint8_t
 CPU::read(uint16_t addrss) // read RAM
 {
-  return memory[addrss];
+  uint8_t val = BUS.read(addrss);
+  // printf("\t reading $%x = %x \n", addrss, val);
+  return val;
+  // return memory[addrss];
 }
 
 void

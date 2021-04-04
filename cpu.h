@@ -1,3 +1,4 @@
+#include "bus.h"
 #include <cstdint>
 #ifndef CPU_H
 #define CPU_H
@@ -22,6 +23,8 @@ public:
   uint8_t memory[64 * 1024] = {};
   const uint16_t STACKSTART = 0x0100;
   const uint16_t STACKEND = 0x01FF;
+
+  bus BUS = {};
 
   // status flags
   bool C = {}; // carry

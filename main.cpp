@@ -12,26 +12,28 @@ main()
   // TO DO ALL
   CPU cpu;
   vector<uint16_t> fails;
-  std::ifstream input("nestest.nes", std::ios::binary);
+  uint8_t Rom[0x4000] = {};
+  std::ifstream romFile("nestest.nes", std::ios::binary);
+
+  romFile.read((char*)(Rom), 0x4000);
+
+  cpu.BUS.rom.load(Rom);
+
   std::ifstream log("CORRECTnestest.log", std::ios::binary);
   int correctAddr = {};
   int correctA = {}, correctX = {}, correctY = {}, correctP = {},
       correctSP = {};
 
   string line;
-  uint8_t ROM[0x4000] = {};
 
-  input.seekg(0x10);
-  input.read((char*)(ROM), 0x4000);
-
-  for (int i = 0; i < 0x4000; i++) {
-    if (0x8000 + i <= 0xBFFF)
-      cpu.write(0x8000 + i, ROM[i]);
-  }
-  for (int i = 0; i < 0x4000; i++) {
-    if (0xC000 + i <= 0xFFFF)
-      cpu.write(0xC000 + i, ROM[i]);
-  }
+  //  for (int i = 0; i < 0x4000; i++) {
+  //    if (0x8000 + i <= 0xBFFF)
+  //      cpu.write(0x8000 + i, ROM[i]);
+  //  }
+  //  for (int i = 0; i < 0x4000; i++) {
+  //    if (0xC000 + i <= 0xFFFF)
+  //      cpu.write(0xC000 + i, ROM[i]);
+  //  }
 
   cpu.I = 1;
   cpu.B2 = 1;
@@ -42,8 +44,11 @@ main()
   int lineN = 0;
   int nfails = 0;
 
+  printf("size prg: %x \n", cpu.BUS.rom.prg_size);
+
   while (1) {
     lineN++;
+
     uint16_t addr = cpu.PC;
     uint8_t HighB = cpu.read(cpu.PC + 1);
     uint8_t LowB = cpu.read(cpu.PC + 2);
@@ -52,7 +57,7 @@ main()
     // Sleep(1);
     printf("%d ", lineN);
 
-    printf("%-10x  %-2.x %-2x %-2x                       A:%-2x X:%-2x Y:%-5x "
+    printf("%-10x  %-2.x %-2x %-2x                       A:%-2x X:%-2x Y:%-5x"
            "P:%x SP:%x  "
            "CYC: ? SL: ? MSG: %x %x %x \n",
            // lineN,
@@ -68,9 +73,6 @@ main()
            cpu.read(0x3),
            cpu.read(0x2),
            cpu.read(0x0));
-
-    // log >> hex >> logLine;
-    // log.ignore(88, '\n');
 
     std::getline(log, line);
     if (line.size() > 0) {
@@ -116,7 +118,7 @@ main()
       printf("\tStatus flags are wrong! Supposed to be: %x  at line %d\n",
              correctP,
              lineN);
-      break;
+      // break;
     }
     if (SP != correctSP) {
       printf("\tStack pointer is wrong! Supposed to be: %x  at line %d\n",
@@ -146,12 +148,10 @@ main()
     }
     if (cpu.opcode == 0x0) {
       printf("Break opcode 0x00\n");
-      break;
+      // break;
     }
   }
   printf("Number of failes: %d >\n", nfails);
-  for (auto i : fails) {
-    // printf("\t%x\n", i);
-  }
+
   return 0;
 }
