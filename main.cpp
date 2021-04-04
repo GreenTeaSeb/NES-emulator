@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "CPU/cpu.h"
 #include <Windows.h>
 #include <fstream>
 #include <iostream>
@@ -26,15 +26,6 @@ main()
 
   string line;
 
-  //  for (int i = 0; i < 0x4000; i++) {
-  //    if (0x8000 + i <= 0xBFFF)
-  //      cpu.write(0x8000 + i, ROM[i]);
-  //  }
-  //  for (int i = 0; i < 0x4000; i++) {
-  //    if (0xC000 + i <= 0xFFFF)
-  //      cpu.write(0xC000 + i, ROM[i]);
-  //  }
-
   cpu.I = 1;
   cpu.B2 = 1;
   cpu.PC = 0xC000;
@@ -48,12 +39,11 @@ main()
 
   while (1) {
     lineN++;
-
     uint16_t addr = cpu.PC;
     uint8_t HighB = cpu.read(cpu.PC + 1);
     uint8_t LowB = cpu.read(cpu.PC + 2);
     uint8_t op = cpu.read(cpu.PC);
-    uint8_t A = cpu.A, X = cpu.X, Y = cpu.Y, P = cpu.PStatus, SP = cpu.SP;
+    uint16_t A = cpu.A, X = cpu.X, Y = cpu.Y, P = cpu.PStatus, SP = cpu.SP;
     // Sleep(1);
     printf("%d ", lineN);
 

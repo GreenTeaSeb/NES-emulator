@@ -6,16 +6,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+
 add_executable(NESEmulator
     main.cpp
-    cpu.cpp
-    cpu_addressing_modes.cpp
-    cpu_green.cpp
-    cpu_red.cpp
-    cpu_blue.cpp
-    cpu_gray.cpp
     bus.cpp
     rom.cpp
-    )
+    CPU/cpu.cpp
+    CPU/cpu_addressing_modes.cpp
+    CPU/cpu_green.cpp
+    CPU/cpu_red.cpp
+    CPU/cpu_blue.cpp
+    CPU/cpu_gray.cpp
+)
 
-
+#cpu.cpp
+#cpu_addressing_modes.cpp
+#cpu_green.cpp
+#cpu_red.cpp
+#cpu_blue.cpp
+#cpu_gray.cpp
