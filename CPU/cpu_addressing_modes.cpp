@@ -53,8 +53,8 @@ CPU::getAbsolute()
   uint8_t hi = read(PC++);
 
   CPU::address = (hi << 8) | lo;
-  printf("\t addrs = %x \n", address);
-  printf("\t next addrs = %x \n", PC + 1);
+  //printf("\t addrs = %x \n", address);
+  //printf("\t next addrs = %x \n", PC + 1);
   // CPU::address = read(PC);
 }
 bool
@@ -91,12 +91,12 @@ CPU::getIndirect_Indexed() // indirect Y
   uint16_t addr = read(zero & 0xff) | read((zero + 1) & 0xff) << 8;
 
   CPU::address = addr + Y;
-  printf("\t addr :%x \n", address);
+  //printf("\t addr :%x \n", address);
   return checkPageCross(addr, Y);
   /*
   uint16_t arg = read(PC + 1);
   uint8_t base = read(arg);
-  printf("\tBase: %x \n", base);
+  //printf("\tBase: %x \n", base);
   uint8_t index = read((arg + 1) % 256);
 
   CPU::address = base + (index << 8) + Y;

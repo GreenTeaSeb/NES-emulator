@@ -110,17 +110,17 @@ CPU::ADC()
 void
 CPU::STA()
 {
-  printf("\t STA: %x -> $%x\n", A, address);
+  //printf("\t STA: %x -> $%x\n", A, address);
   write(address, A);
 }
 
 void
 CPU::LDA()
 {
-  printf("\t $%x = %x \n ", address, read(address));
+  //printf("\t $%x = %x \n ", address, read(address));
 
   A = read(CPU::address);
-  printf("\t LDA A = %x \n", read(CPU::address));
+  //printf("\t LDA A = %x \n", read(CPU::address));
   setZN(A);
 }
 
@@ -128,7 +128,7 @@ void
 CPU::CMP()
 {
   uint16_t diff = A - read(CPU::address);
-  printf("\t %x - %x = %x \n", A, read(CPU::address), diff);
+  //printf("\t %x - %x = %x \n", A, read(CPU::address), diff);
   C = !(diff & 0x100);
   setZN(diff);
 }

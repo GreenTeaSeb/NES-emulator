@@ -4,26 +4,27 @@
 bus::bus() {}
 
 uint8_t
-bus::read(uint16_t addr)
+bus::cpu_read(uint16_t addr)
 {
   if (addr >= RAM_START && addr <= RAM_MIRROR_END) {
     return cpu_ram[addr & 0x7FF];
   } else if (addr >= PPU_REG_START && addr <= PPU_REG_MIRROR_END) {
-    // TO DO PPU
+    return ppu.cpu_read(addr & 0x007);
   } else if (addr >= 0x8000 && addr <= 0xFFFF) {
-    readPRG(addr);
+    return readPRG(addr);
   }
 }
 
 void
-bus::write(uint16_t addr, uint8_t data)
+bus::cpu_write(uint16_t addr, uint8_t data)
 {
   if (addr >= RAM_START && addr <= RAM_MIRROR_END) {
     cpu_ram[addr & 0x7FF] = data;
   } else if (addr >= PPU_REG_START && addr <= PPU_REG_MIRROR_END) {
+    ppu.cpu_write(addr & 0x007, data);
     // TO DO PPU
   } else {
-    printf("Ignoring memory write at %x \n", addr);
+    // printf("Ignoring memory write at %x \n", addr);
   }
 }
 

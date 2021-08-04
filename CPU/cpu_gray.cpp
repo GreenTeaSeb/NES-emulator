@@ -5,7 +5,7 @@
 void
 CPU::executeGRAY(uint8_t opcode, uint8_t addrmode, uint8_t func)
 {
-  printf("UNOFFICIAL OPCODE at  row %x column %x \n", func, addrmode);
+  //printf("UNOFFICIAL OPCODE at  row %x column %x \n", func, addrmode);
   switch (addrmode) { // columns
     case 0x00:
       getIndexed_Indirect();
@@ -179,7 +179,7 @@ void
 CPU::LAX()
 {
   uint8_t data = read(CPU::address);
-  printf("\t A,X = $%x %x\n", address, data);
+  //printf("\t A,X = $%x %x\n", address, data);
   A = data;
   X = data;
   setZN(A);

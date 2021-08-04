@@ -270,7 +270,6 @@ void
 CPU::BRK()
 {
   // TO DO
-  PC = read(0xFFFF);
   B = 1;
 }
 void
@@ -315,7 +314,7 @@ CPU::LDY()
 {
   Y = read(CPU::address);
   setZN(Y);
-  printf("\t Y = %x \n\t N = %x \n", Y, Y >> 7);
+  // printf("\t Y = %x \n\t N = %x \n", Y, Y >> 7);
 }
 
 void
@@ -354,9 +353,9 @@ CPU::STY()
 void
 CPU::JMP()
 {
-  printf("\t jump to addr %x \n", CPU::address);
+  // printf("\t jump to addr %x \n", CPU::address);
   PC = CPU::address;
-  printf("\tjumped -> %x \n", PC);
+  // printf("\tjumped -> %x \n", PC);
 }
 void
 CPU::PHP()
@@ -389,7 +388,7 @@ void
 CPU::PLA()
 {
   A = popStack();
-  printf("\t A = %-2x Z = %x \n", A, Z);
+  // printf("\t A = %-2x Z = %x \n", A, Z);
   setZN(A);
 }
 
@@ -455,7 +454,6 @@ CPU::BCC()
 void
 CPU::BCS()
 {
-
   branch(C);
 }
 
@@ -475,14 +473,14 @@ void
 CPU::CLC()
 {
   C = 0;
-  printf("\t C -> %x\n", C);
+  // printf("\t C -> %x\n", C);
 }
 
 void
 CPU::SEC()
 {
   C = 1;
-  printf("\t C -> %x\n", C);
+  // printf("\t C -> %x\n", C);
 }
 
 void

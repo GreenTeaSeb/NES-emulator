@@ -3,7 +3,6 @@
 #ifndef CPU_H
 #define CPU_H
 
-
 class CPU
 {
 public:
@@ -15,9 +14,9 @@ public:
 
   uint8_t PStatus = {};
 
-  uint16_t SP = {}; // Stack pointer
-  uint16_t PC = {}; // Pc counter
-  uint16_t CC = {}; // Cycle counter
+  uint16_t SP = {};    // Stack pointer
+  uint16_t PC = {};    // Pc counter
+  uint16_t CC = {};    // Cycle counter
   uint8_t opcode = {}; // opcode
   uint16_t address = {};
   uint8_t memory[64 * 1024] = {};
@@ -29,10 +28,10 @@ public:
   // status flags
   bool C = {}; // carry
   bool Z = {}; // zero
-  bool I = {}; // interrupt
+  bool I = 1;  // interrupt
   bool D = {}; // decimal
   bool B = {}; // break
-  bool B2 = {}; // break2
+  bool B2 = 1; // break2
   bool O = {}; // overflow
   bool N = {}; // negative
 

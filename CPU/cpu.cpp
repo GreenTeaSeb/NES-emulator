@@ -1,6 +1,5 @@
 #include "cpu.h"
 #include "../bus.h"
-#include <Windows.h>
 #include <cstdint>
 #include <stdexcept>
 #include <stdio.h>
@@ -9,23 +8,19 @@ CPU::CPU() {}
 void
 CPU::write(uint16_t addrss, uint8_t data) // Write to Ram
 {
-  BUS.write(addrss, data);
-  // CPU::memory[addrss] = data;
+  BUS.cpu_write(addrss, data);
 }
 uint8_t
 CPU::read(uint16_t addrss) // read RAM
 {
-  uint8_t val = BUS.read(addrss);
-  // printf("\t reading $%x = %x \n", addrss, val);
-  return val;
-  // return memory[addrss];
+  return BUS.cpu_read(addrss);
 }
 
 void
 CPU::pushStack(uint8_t data)
 {
   write(STACKSTART + CPU::SP, data);
-  printf("\tstack pushed %x -> %x \n", data, STACKSTART + CPU::SP);
+  // printf("\tstack pushed %x -> %x \n", data, STACKSTART + CPU::SP);
   CPU::SP--;
 }
 
@@ -33,7 +28,7 @@ uint8_t
 CPU::popStack()
 {
   uint16_t val = read(STACKSTART | ++CPU::SP);
-  printf("\tstack popped %x\n", val);
+  // printf("\tstack popped %x\n", val);
   return val;
 }
 void
@@ -42,20 +37,20 @@ CPU::branch(bool condition)
   int8_t jump = read(PC);
   PC++;
   if (condition) {
-    if (PC & 0xFF + jump > 0xFF)
+    if ((PC & 0xFF + jump) > 0xFF)
       CC++;
     PC += jump;
     CC++;
-    printf("\tBranched -> %x\n", PC);
+    // printf("\tBranched -> %x\n", PC);
     return;
   }
-  printf("\tBranch failed\n");
+  // printf("\tBranch failed\n");
 }
 
 void
 CPU::setZN(uint8_t result)
 {
-  printf(" \t Checking if %x == 0 \n", result);
+  // printf(" \t Checking if %x == 0 \n", result);
   Z = !result;
   N = (result >> 7);
 }
@@ -81,7 +76,7 @@ CPU::execute()
   switch (color) {
     case 0b00: // red control instructions
       if (opcode == 0x00)
-        return;
+        break;
       executeRED(opcode, addrmode, func);
       break;
     case 0b01: // green ALU
@@ -95,6 +90,7 @@ CPU::execute()
       break;
     default:
       printf("UNKOWN OPCODE");
+      break;
   }
   setPStatus();
 }
