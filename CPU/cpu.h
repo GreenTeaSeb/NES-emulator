@@ -28,7 +28,7 @@ public:
   // status flags
   bool C = {}; // carry
   bool Z = {}; // zero
-  bool I = 1;  // interrupt
+  bool I = {}; // interrupt
   bool D = {}; // decimal
   bool B = {}; // break
   bool B2 = 1; // break2

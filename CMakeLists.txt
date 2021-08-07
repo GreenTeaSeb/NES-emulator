@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(NES-emulator LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(SDL2 REQUIRED)
 
 
 add_executable(NES-emulator
@@ -18,5 +19,9 @@ add_executable(NES-emulator
     CPU/cpu_blue.cpp
     CPU/cpu_gray.cpp
     PPU/ppu.cpp
+     window.cpp
 )
+
+
+target_link_libraries(NES-emulator PRIVATE SDL2::SDL2)
 

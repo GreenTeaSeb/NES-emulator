@@ -13,16 +13,12 @@ enum MIRRORING
 class PPU
 {
 public:
-  PPU();
-
-
-  //read write
+  // read write
   uint8_t cpu_read(uint16_t addrss);
   void cpu_write(uint16_t addrss, uint8_t data);
 
   uint8_t ppu_read(uint16_t addrss);
   void ppu_write(uint16_t addrss, uint8_t data);
-
 
   std::vector<uint8_t> CHR_ROM = {};
   uint8_t mirroringType = {};
@@ -31,7 +27,6 @@ public:
   uint8_t OAM[64 * 4] = {};
   uint8_t palette[32] = {};
   uint8_t internal_data_buffer = {};
-
 
   // ADDRESS REGISTER 0x2006
   uint8_t hi = true;
@@ -51,8 +46,6 @@ public:
   uint8_t SPRITE_SIZE = 0b00100000;         // 5
   uint8_t MASTER_SLAVE_SELECT = 0b01000000; // 6
   uint8_t GENERATE_NMI = 0b10000000;        // 7*/
-
-
 };
 
 #endif // PPU_H

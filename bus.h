@@ -14,7 +14,7 @@ public:
   const uint16_t PPU_REG_START = 0x2000;
   const uint16_t PPU_REG_MIRROR_END = 0x3FFF;
   ROM rom = {};
-  PPU ppu={};
+  PPU ppu = { rom.CHR_ROM };
 
   uint8_t cpu_ram[2048] = {};
 

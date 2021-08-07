@@ -1,6 +1,8 @@
+#include "window.h"
 #include <cstdint>
 #include <vector>
 #ifndef ROM_H
+
 #define ROM_H
 
 class ROM
@@ -22,7 +24,7 @@ public:
   uint8_t mirroringType;
   uint16_t prg_size = {};
 
-  void load(uint8_t rom[]);
+  void load(std::vector<uint8_t> rom);
   // INES1 FORMAT
 };
 
