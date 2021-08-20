@@ -6,7 +6,7 @@
 class CPU
 {
 public:
-  CPU();
+  CPU(std::vector<uint8_t> rom);
   // registers
   uint8_t A = {};
   uint8_t X = {};
@@ -19,7 +19,6 @@ public:
   uint16_t CC = {};    // Cycle counter
   uint8_t opcode = {}; // opcode
   uint16_t address = {};
-  uint8_t memory[64 * 1024] = {};
   const uint16_t STACKSTART = 0x0100;
   const uint16_t STACKEND = 0x01FF;
 
@@ -68,6 +67,7 @@ public:
   uint8_t popStack();
   void branch(bool condition);
   void setZN(uint8_t result);
+  void NMI();
 
   void setPStatus();
 

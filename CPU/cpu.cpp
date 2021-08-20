@@ -4,7 +4,16 @@
 #include <stdexcept>
 #include <stdio.h>
 
-CPU::CPU() {}
+CPU::CPU(std::vector<uint8_t> rom)
+{
+  BUS.rom.load(rom);
+  PC = read(0xFFFD) * 256 + read(0xFFFC);
+  SP = 0xFD;
+  setPStatus();
+
+  BUS.ppu.CHR_ROM = BUS.rom.CHR_ROM;
+  BUS.ppu.mirroringType = BUS.rom.mirroringType;
+}
 void
 CPU::write(uint16_t addrss, uint8_t data) // Write to Ram
 {
@@ -63,6 +72,16 @@ CPU::setPStatus()
 void
 CPU::initialise()
 {}
+
+void
+CPU::NMI()
+{
+  pushStack(PC);
+  auto flag = PStatus;
+  pushStack(flag);
+  PStatus |= 0x100;
+  PC = read(0xfffb) << 8 | read(0xfffa);
+}
 void
 CPU::execute()
 {
@@ -93,4 +112,5 @@ CPU::execute()
       break;
   }
   setPStatus();
+  // 1 CPU CYCLE = 3 C
 }

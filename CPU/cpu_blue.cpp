@@ -67,9 +67,9 @@ CPU::executeBLUE(uint8_t opcode, uint8_t addrmode, uint8_t func)
       break;
     case 0x2:
       // implied
+      CPU::CC = 2;
       switch (func) { // row
-        CPU::CC = 2; // NEEDS TO BE FIXED, I HAVE NO CLUE WHERE THIS IS MEANT TO
-                     // GO, ACCIDENTALLY TYPED IT HERE MONTHS AGO
+
         case 0x0:
           CPU::ASL();
           break;

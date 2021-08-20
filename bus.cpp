@@ -1,4 +1,4 @@
-#include "bus.h"
+﻿#include "bus.h"
 #include <stdio.h>
 
 bus::bus() {}
@@ -6,25 +6,25 @@ bus::bus() {}
 uint8_t
 bus::cpu_read(uint16_t addr)
 {
-  if (addr >= RAM_START && addr <= RAM_MIRROR_END) {
+  if (addr >= 0x0000 && addr <= 0x1FFF) { // reading cpu ram
     return cpu_ram[addr & 0x7FF];
-  } else if (addr >= PPU_REG_START && addr <= PPU_REG_MIRROR_END) {
-    return ppu.cpu_read(addr & 0x007);
-  } else if (addr >= 0x8000 && addr <= 0xFFFF) {
+  } else if (addr >= 0x2000 &&
+             addr <= 0x3FFF) { // reading mirrored ppu registers
+    return ppu.reg_read(addr & 0x01f);
+  } else if (addr >= 0x8000 && addr <= 0xFFFF) { // reading PRG from cartridge
     return readPRG(addr);
+  } else {
+    return 0x0;
   }
 }
 
 void
 bus::cpu_write(uint16_t addr, uint8_t data)
 {
-  if (addr >= RAM_START && addr <= RAM_MIRROR_END) {
+  if (addr >= 0x0000 && addr <= 0x1FFF) {
     cpu_ram[addr & 0x7FF] = data;
-  } else if (addr >= PPU_REG_START && addr <= PPU_REG_MIRROR_END) {
-    ppu.cpu_write(addr & 0x007, data);
-    // TO DO PPU
-  } else {
-    // printf("Ignoring memory write at %x \n", addr);
+  } else if (addr >= 0x2000 && addr <= 0x3FFF) {
+    ppu.reg_write(addr & 0x01f, data);
   }
 }
 

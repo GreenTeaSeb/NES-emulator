@@ -17,17 +17,17 @@ window::set_pixel(uint8_t x,
 }
 
 void
-window::tile(std::vector<uint8_t> chr_rom, uint8_t bank)
+window::tile(std::vector<uint8_t> chr_rom, uint8_t bank, uint8_t vram[])
 {
-  auto b = (bank * 0x1000);
+  auto b = bank;
+  auto tile_n = 0;
   int tile_x = 0;
   int tile_y = 0;
 
-  for (int tile_n = 0; tile_n < 255; tile_n++) {
-    if (tile_n != 0 && tile_n % 20 == 0) {
-      tile_y += 10;
-      tile_x = 0;
-    }
+  for (int i = 0; i < 0x03c0; i++) {
+    tile_n = vram[i];
+    tile_x = i % 32;
+    tile_y = i / 32;
     std::vector<uint8_t> tiles(&chr_rom[(bank + tile_n * 16)],
                                &chr_rom[(bank + tile_n * 16 + 15)]);
 
@@ -39,10 +39,10 @@ window::tile(std::vector<uint8_t> chr_rom, uint8_t bank)
         upper = upper >> 1;
         lower = lower >> 1;
 
-        set_pixel(tile_x + x, tile_y + y, get_rgb(val));
+        set_pixel(tile_x * 8 + x, tile_y * 8 + y, get_rgb(val));
       }
     }
-    tile_x += 10;
+    // tile_x += 10;
   }
 }
 
@@ -67,32 +67,27 @@ void
 window::show_window()
 {
 
-  SDL_Window* window;
-  SDL_Renderer* render;
-  SDL_Texture* texture;
-  SDL_Event event;
+  window_ = SDL_CreateWindow("CHRROM",
+                             SDL_WINDOWPOS_CENTERED,
+                             SDL_WINDOWPOS_CENTERED,
+                             WIDTH * 3,
+                             HEIGHT * 3,
+                             SDL_WINDOW_ALWAYS_ON_TOP);
 
-  window = SDL_CreateWindow("CHRROM",
-                            SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED,
-                            WIDTH * 3,
-                            HEIGHT * 3,
-                            SDL_WINDOW_ALWAYS_ON_TOP);
-
-  render = SDL_CreateRenderer(window, -1, 0);
+  render = SDL_CreateRenderer(window_, -1, 0);
   texture = SDL_CreateTexture(
     render, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, 256, 240);
+}
 
-  while (1) {
-    SDL_PollEvent(&event);
-    if (event.type == SDL_QUIT)
-      break;
+void
+window::draw()
+{
+  SDL_PollEvent(&event);
+  if (event.type == SDL_QUIT)
+    return;
 
-    SDL_UpdateTexture(texture, NULL, &data, 256 * 3);
-    SDL_SetRenderTarget(render, NULL);
-    SDL_RenderCopy(render, texture, NULL, NULL);
-    SDL_RenderPresent(render);
-  }
-
-  SDL_Quit();
+  SDL_UpdateTexture(texture, NULL, &data, 256 * 3);
+  SDL_SetRenderTarget(render, NULL);
+  SDL_RenderCopy(render, texture, NULL, NULL);
+  SDL_RenderPresent(render);
 }

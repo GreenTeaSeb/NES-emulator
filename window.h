@@ -34,14 +34,19 @@ class window
   const int HEIGHT = 240;
 
   std::array<uint8_t, 256 * 240 * 3> data = {};
+  SDL_Window* window_;
+  SDL_Renderer* render;
+  SDL_Texture* texture;
+  SDL_Event event;
 
 public:
   void set_pixel(uint8_t x, uint8_t y, std::tuple<uint8_t, uint8_t, uint8_t>);
-  void tile(std::vector<uint8_t> chr_rom, uint8_t bank);
+  void tile(std::vector<uint8_t> chr_rom, uint8_t bank, uint8_t vram[]);
   std::tuple<uint8_t, uint8_t, uint8_t> get_rgb(int val);
 
   window();
   void show_window();
+  void draw();
 };
 
 #endif // WINDOW_H

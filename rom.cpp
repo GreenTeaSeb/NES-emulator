@@ -32,8 +32,8 @@ ROM::load(std::vector<uint8_t> rom)
 
   bool skip_trainer = (rom[6] & 0b100) != 0;
 
-  int prg_start = +(skip_trainer) ? 16 + 512 : 16;
-  int chr_start = prg_start + prg_size;
+  auto prg_start = +(skip_trainer) ? 16 + 512 : 16;
+  auto chr_start = prg_start + prg_size;
 
   std::vector<uint8_t> prg(&rom[prg_start], &rom[prg_start + prg_size]);
   std::vector<uint8_t> chr(&rom[chr_start], &rom[chr_start + chr_size]);
