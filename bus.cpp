@@ -10,7 +10,7 @@ bus::cpu_read(uint16_t addr)
     return cpu_ram[addr & 0x7FF];
   } else if (addr >= 0x2000 &&
              addr <= 0x3FFF) { // reading mirrored ppu registers
-    return ppu.reg_read(addr & 0x01f);
+    return ppu.reg_read(0x2007 & addr);
   } else if (addr >= 0x8000 && addr <= 0xFFFF) { // reading PRG from cartridge
     return readPRG(addr);
   } else {
@@ -24,7 +24,7 @@ bus::cpu_write(uint16_t addr, uint8_t data)
   if (addr >= 0x0000 && addr <= 0x1FFF) {
     cpu_ram[addr & 0x7FF] = data;
   } else if (addr >= 0x2000 && addr <= 0x3FFF) {
-    ppu.reg_write(addr & 0x01f, data);
+    ppu.reg_write(0x2007 & addr, data);
   }
 }
 

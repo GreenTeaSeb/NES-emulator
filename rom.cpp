@@ -5,7 +5,7 @@
 ROM::ROM() {}
 
 void
-ROM::load(std::vector<uint8_t> rom)
+ROM::load(const std::vector<uint8_t>& rom)
 {
 
   mapper = (rom[7] & 0xF0) | (rom[6] >> 4);
@@ -35,13 +35,6 @@ ROM::load(std::vector<uint8_t> rom)
   auto prg_start = +(skip_trainer) ? 16 + 512 : 16;
   auto chr_start = prg_start + prg_size;
 
-  std::vector<uint8_t> prg(&rom[prg_start], &rom[prg_start + prg_size]);
-  std::vector<uint8_t> chr(&rom[chr_start], &rom[chr_start + chr_size]);
-
-  PRG_ROM = prg;
-  CHR_ROM = chr;
-  // PRG_ROM.insert(PRG_ROM.begin(), rom + prg_start, rom + prg_size -
-  // prg_start);
-  // CHR_ROM.insert(CHR_ROM.begin(), rom + chr_start, rom + chr_size -
-  // chr_start);
+  PRG_ROM = { &rom[prg_start], &rom[prg_start + prg_size] };
+  CHR_ROM = { &rom[chr_start], &rom[chr_start + chr_size] };
 }

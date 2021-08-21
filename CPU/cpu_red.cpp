@@ -15,8 +15,8 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
       // 0x0,0x2,0x3 are implied
       switch (func) {
         case 0x00:
+          CPU::CC = 7;
           CPU::BRK();
-
           break;
         case 0x01:
           CPU::CC = 6;
@@ -269,8 +269,14 @@ CPU::executeRED(uint8_t opcode, uint8_t addrmode, uint8_t func)
 void
 CPU::BRK()
 {
-  // TO DO
+  PC++;
   B = 1;
+  setPStatus();
+  pushStack((PC >> 8) & 0x00ff);
+  pushStack(PC & 0x00ff);
+  pushStack(PStatus);
+  B = 0;
+  PC = read(0xFFFE) | (read(0xFFFF) << 8);
 }
 void
 CPU::JSR()

@@ -1,6 +1,9 @@
 ﻿#include "window.h"
 
-window::window() {}
+window::window(PPU& p)
+{
+  ppu = &p;
+}
 
 void
 window::set_pixel(uint8_t x,
@@ -17,13 +20,14 @@ window::set_pixel(uint8_t x,
 }
 
 void
-window::tile(std::vector<uint8_t> chr_rom, uint8_t bank, uint8_t vram[])
+window::tile()
 {
-  auto b = bank;
+  auto bank = 0;
   auto tile_n = 0;
   int tile_x = 0;
   int tile_y = 0;
-
+  auto vram = ppu->vram;
+  std::span<uint8_t> chr_rom = ppu->CHR_ROM;
   for (int i = 0; i < 0x03c0; i++) {
     tile_n = vram[i];
     tile_x = i % 32;
@@ -64,7 +68,7 @@ window::get_rgb(int val)
 }
 
 void
-window::show_window()
+window::create_window()
 {
 
   window_ = SDL_CreateWindow("CHRROM",
@@ -79,15 +83,16 @@ window::show_window()
     render, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, 256, 240);
 }
 
-void
+int
 window::draw()
 {
   SDL_PollEvent(&event);
   if (event.type == SDL_QUIT)
-    return;
+    return 0;
 
   SDL_UpdateTexture(texture, NULL, &data, 256 * 3);
   SDL_SetRenderTarget(render, NULL);
   SDL_RenderCopy(render, texture, NULL, NULL);
   SDL_RenderPresent(render);
+  return 1;
 }

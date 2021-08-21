@@ -21,10 +21,10 @@ public:
   std::vector<uint8_t> PRG_ROM; // connected to cpu
   std::vector<uint8_t> CHR_ROM; // connectec to ppu
   uint8_t mapper = {};
-  uint8_t mirroringType;
+  uint8_t mirroringType = {};
   uint16_t prg_size = {};
 
-  void load(std::vector<uint8_t> rom);
+  void load(std::vector<uint8_t> const& rom);
   // INES1 FORMAT
 };
 

@@ -1,7 +1,7 @@
 ﻿#ifndef PPU_H
 #define PPU_H
-#include "../window.h"
 #include <cstdint>
+#include <span>
 #include <vector>
 
 enum MIRRORING
@@ -16,10 +16,9 @@ class PPU
 public:
   PPU();
   // DATA
-  std::vector<uint8_t> CHR_ROM = {};
+  std::span<uint8_t> CHR_ROM = {};
   uint8_t mirroringType = {};
 
-  window win = {};
   uint8_t vram[2048] = {}; // 2 nametables
   uint8_t OAM[64 * 4] = {};
   uint8_t palette[32] = {};
@@ -66,7 +65,7 @@ public:
   // ADDRESS REGISTER 0x2006
   uint8_t address_latch = {};
   uint8_t data_buffer = {};
-  uint16_t ppu_address = {};
+  uint16_t vram_address = {};
 
   // read write
   uint8_t reg_read(uint16_t addrss);
@@ -74,6 +73,8 @@ public:
 
   uint8_t read(uint16_t addrss);
   void write(uint16_t addrss, uint8_t data);
+
+  uint16_t mirrored_addrss(uint16_t addrss);
 
   void execute();
 

@@ -1,11 +1,13 @@
 #ifndef WINDOW_H
 #define WINDOW_H
+#include "PPU/ppu.h"
 #include <SDL2/SDL.h>
 #include <array>
 #include <tuple>
 #include <vector>
 class window
 {
+
   uint8_t palette[64][3] = {
     { 0x80, 0x80, 0x80 }, { 0x00, 0x3D, 0xA6 }, { 0x00, 0x12, 0xB0 },
     { 0x44, 0x00, 0x96 }, { 0xA1, 0x00, 0x5E }, { 0xC7, 0x00, 0x28 },
@@ -30,8 +32,8 @@ class window
     { 0x99, 0xFF, 0xFC }, { 0xDD, 0xDD, 0xDD }, { 0x11, 0x11, 0x11 },
     { 0x11, 0x11, 0x11 }
   };
-  const int WIDTH = 256;
-  const int HEIGHT = 240;
+  constexpr static int WIDTH = 256;
+  constexpr static int HEIGHT = 240;
 
   std::array<uint8_t, 256 * 240 * 3> data = {};
   SDL_Window* window_;
@@ -41,12 +43,12 @@ class window
 
 public:
   void set_pixel(uint8_t x, uint8_t y, std::tuple<uint8_t, uint8_t, uint8_t>);
-  void tile(std::vector<uint8_t> chr_rom, uint8_t bank, uint8_t vram[]);
+  void tile();
   std::tuple<uint8_t, uint8_t, uint8_t> get_rgb(int val);
-
-  window();
-  void show_window();
-  void draw();
+  PPU* ppu;
+  window(PPU& p);
+  void create_window();
+  int draw();
 };
 
 #endif // WINDOW_H

@@ -1,17 +1,17 @@
-#include "cpu.h"
+﻿#include "cpu.h"
 #include "../bus.h"
 #include <cstdint>
 #include <stdexcept>
 #include <stdio.h>
 
-CPU::CPU(std::vector<uint8_t> rom)
+CPU::CPU(std::vector<uint8_t>& rom)
 {
   BUS.rom.load(rom);
   PC = read(0xFFFD) * 256 + read(0xFFFC);
   SP = 0xFD;
   setPStatus();
 
-  BUS.ppu.CHR_ROM = BUS.rom.CHR_ROM;
+  BUS.ppu.CHR_ROM = { BUS.rom.CHR_ROM };
   BUS.ppu.mirroringType = BUS.rom.mirroringType;
 }
 void
@@ -76,11 +76,14 @@ CPU::initialise()
 void
 CPU::NMI()
 {
-  pushStack(PC);
-  auto flag = PStatus;
-  pushStack(flag);
-  PStatus |= 0x100;
-  PC = read(0xfffb) << 8 | read(0xfffa);
+  pushStack((PC >> 8) & 0x00ff);
+  pushStack(PC & 0x00ff);
+  B = 0;
+  I = 1;
+  setPStatus();
+  pushStack(PStatus);
+  PC = (read(0xfffb) << 8) | read(0xfffa);
+  CC = 8;
 }
 void
 CPU::execute()
@@ -94,8 +97,6 @@ CPU::execute()
 
   switch (color) {
     case 0b00: // red control instructions
-      if (opcode == 0x00)
-        break;
       executeRED(opcode, addrmode, func);
       break;
     case 0b01: // green ALU
@@ -112,5 +113,14 @@ CPU::execute()
       break;
   }
   setPStatus();
-  // 1 CPU CYCLE = 3 C
+  // 1 CPU CYCLE = 3 PPU CYCLE
+  for (int i = 0; i < CC; i++) {
+    for (int j = 0; j < 3; j++) {
+      BUS.ppu.execute();
+      if (BUS.ppu.NMI) {
+        BUS.ppu.NMI = false;
+        NMI();
+      }
+    }
+  }
 }

@@ -1,12 +1,13 @@
-#include "../bus.h"
-#include <cstdint>
 #ifndef CPU_H
 #define CPU_H
+#include "../bus.h"
+#include <cstdint>
+#include <vector>
 
 class CPU
 {
 public:
-  CPU(std::vector<uint8_t> rom);
+  CPU(std::vector<uint8_t>& rom);
   // registers
   uint8_t A = {};
   uint8_t X = {};
@@ -19,8 +20,8 @@ public:
   uint16_t CC = {};    // Cycle counter
   uint8_t opcode = {}; // opcode
   uint16_t address = {};
-  const uint16_t STACKSTART = 0x0100;
-  const uint16_t STACKEND = 0x01FF;
+  uint16_t STACKSTART = 0x0100;
+  uint16_t STACKEND = 0x01FF;
 
   bus BUS = {};
 
