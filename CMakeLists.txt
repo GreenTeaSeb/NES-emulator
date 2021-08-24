@@ -20,6 +20,7 @@ add_executable(NES-emulator
     CPU/cpu_gray.cpp
     PPU/ppu.cpp
      window.cpp
+     bitops.h
 )
 
 

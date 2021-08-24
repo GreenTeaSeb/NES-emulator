@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <stdio.h>
 
-CPU::CPU(std::vector<uint8_t>& rom)
+CPU::CPU(std::vector<uint8_t>& rom, window& win)
 {
   BUS.rom.load(rom);
   PC = read(0xFFFD) * 256 + read(0xFFFC);
@@ -12,7 +12,8 @@ CPU::CPU(std::vector<uint8_t>& rom)
   setPStatus();
 
   BUS.ppu.CHR_ROM = { BUS.rom.CHR_ROM };
-  BUS.ppu.mirroringType = BUS.rom.mirroringType;
+  BUS.ppu.mirroringType = &BUS.rom.mirroringType;
+  BUS.ppu.win = win;
 }
 void
 CPU::write(uint16_t addrss, uint8_t data) // Write to Ram
@@ -109,7 +110,7 @@ CPU::execute()
       executeGRAY(opcode, addrmode, func);
       break;
     default:
-      printf("UNKOWN OPCODE");
+      printf("UNKOWN OPCODE\n");
       break;
   }
   setPStatus();

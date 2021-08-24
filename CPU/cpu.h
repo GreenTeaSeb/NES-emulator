@@ -1,13 +1,14 @@
 #ifndef CPU_H
 #define CPU_H
 #include "../bus.h"
+#include "../window.h"
 #include <cstdint>
 #include <vector>
 
 class CPU
 {
 public:
-  CPU(std::vector<uint8_t>& rom);
+  CPU(std::vector<uint8_t>& rom, window& win);
   // registers
   uint8_t A = {};
   uint8_t X = {};

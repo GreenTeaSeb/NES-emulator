@@ -1,9 +1,6 @@
 ﻿#include "window.h"
 
-window::window(PPU& p)
-{
-  ppu = &p;
-}
+window::window() {}
 
 void
 window::set_pixel(uint8_t x,
@@ -16,37 +13,6 @@ window::set_pixel(uint8_t x,
     data[base] = std::get<0>(rgb);
     data[base + 1] = std::get<1>(rgb);
     data[base + 2] = std::get<2>(rgb);
-  }
-}
-
-void
-window::tile()
-{
-  auto bank = 0;
-  auto tile_n = 0;
-  int tile_x = 0;
-  int tile_y = 0;
-  auto vram = ppu->vram;
-  std::span<uint8_t> chr_rom = ppu->CHR_ROM;
-  for (int i = 0; i < 0x03c0; i++) {
-    tile_n = vram[i];
-    tile_x = i % 32;
-    tile_y = i / 32;
-    std::vector<uint8_t> tiles(&chr_rom[(bank + tile_n * 16)],
-                               &chr_rom[(bank + tile_n * 16 + 15)]);
-
-    for (int y = 0; y < 8; y++) {
-      auto upper = tiles[y];
-      auto lower = tiles[y + 8];
-      for (int x = 8; x > 0; x--) {
-        auto val = (1 & upper) << 1 | (1 & lower);
-        upper = upper >> 1;
-        lower = lower >> 1;
-
-        set_pixel(tile_x * 8 + x, tile_y * 8 + y, get_rgb(val));
-      }
-    }
-    // tile_x += 10;
   }
 }
 

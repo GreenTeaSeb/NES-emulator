@@ -1,9 +1,9 @@
 ﻿#ifndef PPU_H
 #define PPU_H
+#include "../window.h"
+#include <bitset>
 #include <cstdint>
 #include <span>
-#include <vector>
-
 enum MIRRORING
 {
   VERTICAL,
@@ -17,16 +17,16 @@ public:
   PPU();
   // DATA
   std::span<uint8_t> CHR_ROM = {};
-  uint8_t mirroringType = {};
+  uint8_t* mirroringType = {};
 
   uint8_t vram[2048] = {}; // 2 nametables
   uint8_t OAM[64 * 4] = {};
   uint8_t palette[32] = {};
 
-  int16_t scanline = {};
+  uint16_t scanline = {};
   uint16_t cycle = {};
   bool NMI = {};
-  uint8_t status = {};
+  std::bitset<8> status = {};
   // STATUS: _ _ _ _ _ _ _ _
   //         | | | | | | | |
   //         7 6 5 4 3 2 1 0
@@ -36,7 +36,7 @@ public:
   // 5: SPRITE OVERFLOW
   // 4-0 UNUSED
 
-  uint8_t mask = {};
+  std::bitset<8> mask = {};
   // MASK: _ _ _ _ _ _ _ _
   //         | | | | | | | |
   //         7 6 5 4 3 2 1 0
@@ -49,7 +49,7 @@ public:
   // 1: render_bg_left
   // 0: grayscale
 
-  uint8_t control = {};
+  std::bitset<8> control = {};
   // CONTROL: _ _ _ _ _ _ _ _
   //         | | | | | | | |
   //         7 6 5 4 3 2 1 0
@@ -65,8 +65,31 @@ public:
   // ADDRESS REGISTER 0x2006
   uint8_t address_latch = {};
   uint8_t data_buffer = {};
-  uint16_t vram_address = {};
 
+  // loopy registers
+  std::bitset<15> vram_address = {}; // current Vram
+  std::bitset<15> tram_address = {}; // temporary Vram; address of top left tile
+  uint8_t fine_x = {};               // 3bits
+  uint8_t NT_byte = {};
+  uint8_t AT_byte = {};
+  uint8_t low_bg_byte = {};
+  uint8_t high_bg_byte = {};
+
+  uint16_t pattern_shifter_hi = {};
+  uint16_t pattern_shifter_lo = {};
+
+  uint8_t attribute_shifter_hi = {};
+  uint8_t attribute_shifter_lo = {};
+  // LOOPY: _  _  _  _  _  _ _ _ _ _ _ _ _ _ _
+  //        |  |  |  |  |  | | | | | | | | | |
+  //       14 13 12 11 10  9 8 7 6 5 4 3 2 1 0
+  // 0-4: coarse X scroll
+  // 5-9: coarse y scroll
+  // 10-11:  nametable select;
+  // 12-14: fine Y scroll
+
+  // window display
+  window win;
   // read write
   uint8_t reg_read(uint16_t addrss);
   void reg_write(uint16_t addrss, uint8_t data);
@@ -78,7 +101,11 @@ public:
 
   void execute();
 
-  // register functions
+  void increment_x();
+  void increment_y();
+
+  void transfer_hori();
+  void transfer_vert();
 };
 
 #endif // PPU_H

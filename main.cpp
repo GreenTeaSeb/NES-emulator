@@ -14,18 +14,23 @@ main()
   std::ifstream romFile("nestest.nes", std::ios::in | std::ios::binary);
   std::vector<uint8_t> rom((std::istreambuf_iterator<char>(romFile)),
                            std::istreambuf_iterator<char>());
-  CPU cpu{ rom };
+  window win;
+  CPU cpu{ rom, win };
 
-  window win = { cpu.BUS.ppu };
   win.create_window();
   while (1) {
-    printf("PC: %-4x A:%-2x X:%-2x Y:%-2x stack: %-2x\n",
-           cpu.PC,
-           cpu.A,
-           cpu.X,
-           cpu.Y,
-           cpu.SP);
-    // win.tile();
+    //    printf("PC: %-4x A:%-2x X:%-2x Y:%-2x stack: %-2x\n",
+    //           cpu.PC,
+    //           cpu.A,
+    //           cpu.X,
+    //           cpu.Y,
+    //           cpu.SP);
+
+    //    if (cpu.BUS.ppu.cycle == 239) {
+    //      win.tile();
+    //
+    //    }
+    // win.draw();
     cpu.execute();
   }
 

@@ -1,6 +1,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
-#include "PPU/ppu.h"
+
 #include <SDL2/SDL.h>
 #include <array>
 #include <tuple>
@@ -45,8 +45,7 @@ public:
   void set_pixel(uint8_t x, uint8_t y, std::tuple<uint8_t, uint8_t, uint8_t>);
   void tile();
   std::tuple<uint8_t, uint8_t, uint8_t> get_rgb(int val);
-  PPU* ppu;
-  window(PPU& p);
+  window();
   void create_window();
   int draw();
 };
